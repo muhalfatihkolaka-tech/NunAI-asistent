@@ -1,17 +1,25 @@
 import streamlit as st
+import os
+import gdown
 from llama_cpp import Llama
 
 st.set_page_config(page_title="Nun - ALstudio AI")
 st.title("☪️ Nun - Asisten AI Muslim (ALstudio)")
 
-# Inisialisasi model
+MODEL_PATH = "model.gguf"
+GDRIVE_FILE_ID = "17VmxsLsR-SEnKgDqmpsFg_Y7aYxB12FZ"
+
 @st.cache_resource
 def load_model():
-    return Llama(model_path="model.gguf", n_ctx=4096)
+    if not os.path.exists(MODEL_PATH):
+        st.info("Sedang mengunduh model AI Nun dari Google Drive... Mohon tunggu sebentar ☪️✨")
+        url = f"https://drive.google.com/uc?id={GDRIVE_FILE_ID}"
+        gdown.download(url, MODEL_PATH, quiet=False)
+    return Llama(model_path=MODEL_PATH, n_ctx=4096)
 
 llm = load_model()
 
-# Instruksi Persona (System Prompt dengan Proteksi)
+# System Prompt dengan Proteksi Identitas
 system_prompt = """
 Kamu adalah Nun, Asisten AI Muslim open-source yang cerdas, ramah, dan bijaksana buatan Indonesia dari pengembang ALstudio. 
 
@@ -31,19 +39,16 @@ Aturan Penulisan:
 if "messages" not in st.session_state:
     st.session_state.messages = [{"role": "system", "content": system_prompt}]
 
-# Tampilkan chat history
 for message in st.session_state.messages:
     if message["role"] != "system":
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# Input user
 if prompt := st.chat_input("Tanya sesuatu kepada Nun..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Generate jawaban
     with st.chat_message("assistant"):
         stream = llm.create_chat_completion(
             messages=st.session_state.messages,
