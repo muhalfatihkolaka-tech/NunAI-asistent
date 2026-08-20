@@ -133,3 +133,6 @@ if prompt := st.chat_input("Tanya sesuatu kepada Nun..."):
                         )
                 except Exception as e:
                     st.error(f"Gagal terhubung ke jaringan: {e} ☪️✨")
+
+# --- ENTRY POINT UNTUK VERCEL ---
+app = st
