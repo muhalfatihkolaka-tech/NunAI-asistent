@@ -1,3 +1,2 @@
 streamlit
-llama-cpp-python
-gdown
+requests
